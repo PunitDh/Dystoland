@@ -75,6 +75,16 @@ class Image < Entity
    o o o o o o o o o
 ",
 
+"trashborg" =>
+"
+ \\      OO
+  \\____|\\mm
+  //_//\\ \\w\\
+ /---/  \\/_/
+/___/_____\\
+-----------
+",
+
 "cellphone" =>
 "
  __|

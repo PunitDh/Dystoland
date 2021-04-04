@@ -50,21 +50,13 @@ player = Player.new
 prompt = TTY::Prompt.new(symbols: {marker: ">"})
 puts title.red
 puts title_city
-tmp = gets
-# puts "\t\t\t" + player.health.to_s
+tmpgets
 puts "\n"*30
 
 begin
-  chapter_setting(player,prompt)
-  chapter_one(player,prompt)
-  chapter_two(player,prompt)
+  # chapter_setting(player,prompt)
+  # chapter_one(player,prompt)
+  # chapter_two(player,prompt)
   chapter_three(player,prompt)
-  # printprompt "He hands you a device: " + "K-311 Gamma Siphoner.".light_green
-
-  # choices = {"[Take the device]" => 1, "[Tell him you don't need it]" => 2}
-	# request = prompt.select("What do you do?\n".light_green, choices, show_help: :never)
-
-  # prompt.select
-  # player.name = gets.chomp
   exit
 end while (player.health > 0)
