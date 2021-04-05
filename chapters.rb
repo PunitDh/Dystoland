@@ -14,7 +14,10 @@ def chapter_setting(player,prompt)
       player.name = gets.chomp
       print "Your designation is: Lieutenant-Sargeant #{player.name}.\n\n"
       request = promptchoices(prompt, "Are you okay with this?\n", {"Yes" => 1, "No" => 2})
-    end while request == 2  
+    end while request == 2
+
+    Image.print("leiutenant")
+    cutscene("Welcome, Lieutenant-Sargeant #{player.name}")
 end
 
 def chapter_one(player,prompt)
@@ -38,11 +41,11 @@ def chapter_one(player,prompt)
   
     request = promptchoices(prompt, "Say:", {"Who is this?" => 1, "How did you get this number?" => 2})
     
-    cutscene "\"*Cough cough*,\" says the old man. \"My name is Wallace, sir. I got your number through your old co-worker Samuel.\""
+    cutscene "\n\"*Cough cough*,\" says the old man. \"My name is Wallace, sir. I got your number through your old co-worker Samuel.\""
   
     request = promptchoices(prompt, "Say:", {"What can I do for you?" => 1, "How can I help?" => 2})
   
-    cutscenes ["\n\"Please, sir. You must help me. Samuel spoke highly of you and I know of your reputation.\"", "\"You must help me. *cough cough*\"", "\"Please check your phone. I'm about to send you a photograph.\"", "[BLEEP] You have received a message."]
+    cutscenes ["\n\"Please, sir. You must help me. Samuel spoke highly of you and I know of your reputation.\"", "\"You must help me. *cough cough*\"", "\"Please check your phone. I'm about to send you a photograph.\"", "[BLEEP]".yellow+" You have received a message."]
   
     request = promptchoices(prompt, "", "[Open the message]" => 1)
     cutscene "It's a photograph."
@@ -50,7 +53,7 @@ def chapter_one(player,prompt)
  
     request = promptchoices(prompt, "You say...\n", {"What is this?" => 1, "Who is this?" => 2})
   
-    cutscenes ["\"This is Cyb,\" says Wallace. \"Cyb is a robot.\"",
+    cutscenes ["\n\"This is Cyb,\" says Wallace. \"Cyb is a robot.\"",
       "\"I built Cyb myself.\"",
       "\"*Cough cough*\"",
       "\"*Cough cough*\"",
@@ -64,18 +67,18 @@ def chapter_one(player,prompt)
   
     request = promptchoices(prompt, "", {"[Say nothing]" => 1, "[Ask him why he can't you do this himself]" => 2})
   
-    cutscene "\"Why can't you do this yourself?\" you ask him." if request == 2
+    cutscene "\n\"Why can't you do this yourself?\" you ask him." if request == 2
     
     cutscene "\"Lieutenant-Sargeant #{player.name}, I know of your reputation. You disabled the Arch-Gamma Megaframe two years ago.\""
   
     choices = {"You know about that?" => 1, "Yes, that, I did." => 2}
     request = promptchoices(prompt, "Say:", choices)
   
-    cutscene "\"You know about that, do you, Wallace?\" you ask him." if request == 1
+    cutscene "\n\"You know about that, do you, Wallace?\" you ask him." if request == 1
   
     cutscene "\"Your old colleague Samuel mentioned it.\"" if request == 1
   
-    cutscene "\"Yes, that was quite a mission we undertook,\" you say" if request == 2
+    cutscene "\n\"Yes, that was quite a mission we undertook,\" you say" if request == 2
   
     cutscenes [
       "\"*Cough cough*\"",
@@ -92,15 +95,18 @@ def chapter_one(player,prompt)
   
     request = promptchoices(prompt, "Say:", {"Well, that's quite an offer, Wallace. Yes, I'll take it." => 1, "Actually, I want 50,000." => 2})
     
-    player.wallace_credits = 25000 if request == 1
+    if request == 1
+      player.wallace_credits = 25000
+      player.credits += 25000
+    end
   
     if request == 2
-      cutscene "\"Actually, Wallace. I can do it for no less than 50,000,\" you say."
+      cutscene "\n\"Actually, Wallace. I can do it for no less than 50,000,\" you say."
       cutscene "\"*Cough cough* my dear boy,\" says Wallace. \"You drive a hard bargain. Do you really want to gamble with a dying old man's life?\""
       choices = {"You're right, I'm sorry, Wallace. Let's keep it at 25,000" => 1, "50,000 is my price. Take it or leave it." => 2}
       request = prompt.select("Say:", choices, show_help: :never)
       if request == 2
-        cutscene "\"This is a task that may put my life and other's lives at risk. 50,000 is my price,\" you say."
+        cutscene "\n\"This is a task that may put my life and other's lives at risk. 50,000 is my price,\" you say."
         cutscene "\"Well, that's quite an ask,\" says Wallace. \"Fine. Let's do 50,000.\""
         cutscene "\"I will pay you 25,000 now and the rest when the task is done.\""
         cutscene "You have gained: "+"+25000 credits".yellow
@@ -114,13 +120,12 @@ def chapter_one(player,prompt)
           request = prompt.select("Say:", choices, show_help: :never)
           cutscene "You're right, sorry, Wallace. The needs of humanity far outweigh anything else. Let's settle at 50,000" if request == 1
           if request == 2
-            cutscene "70,000 or no deal, Wallace."
-            cutscene "Fine, you can have 70,000 credits. I'll give you the rest of the money after the task is done. \""
+            cutscene "\n\"70,000 or no deal, Wallace.\""
+            cutscene "\"Fine, you can have 70,000 credits. I'll give you the rest of the money after the task is done. \""
             player.wallace_credits = 70000
             cutscene "You have lost: " + "-2 karma points.".light_red
             player.karma -= 2
           end
-  
         end
       end
     end
@@ -131,11 +136,12 @@ def chapter_one(player,prompt)
       "\"I built Cyb to protect myself and my family.\"",
       "\"Ever since the Robot Revolution, it has become increasingly necessary to have robots on your side.\"",
       "\"Unfortunately, this is not a simple a task where you hack into his subsystem and press the Delete button.\"",
-      "\"Cyb is a modified version of the Cybertron-8X110, the same robot that the Cybernetics use for law enforcement operations\"",
+      "\"Cyb is a modified version of the Cybertron-8X110, the same robot that they use for law enforcement operations\"",
       "\"Which means, even if you delete his memory, he will still have backup copies in the Cloud.\"",
       "\"You will need a special device called the " + "K-311 Gamma Siphoner".light_green + ".\"",
       "\"This is the only device capable of disabling the robot and deleting all memories from the Cloud.\"",
-      "\"I'm going to have a drone deliver the " + "K-311 Gamma Siphoner".light_green + " to you in the next 2 hours.\""]
+      "\"Your first task will be to retrieve the " + "K-311 Gamma Siphoner".light_green + " from the Atlas Station.\"",
+    "\"Be careful. The place is heavily guarded!!!\""]
 
     begin
       choices = {"Great. Thank you, Wallace." => 1, "[Tell him you don't need it]" => 2}
@@ -143,7 +149,7 @@ def chapter_one(player,prompt)
       cutscene "\n\"Don't be a fool,\" says Wallace. \"You wouldn't last 2 days without the device.\"" if request == 2
     end while request == 2
     cutscenes [
-      "\"Great. Now we're on track.\"",
+      "\n\"Great. Now we're on track.\"",
       "\"Cyb is located deep within the hearts of the Lambda Sector.\"",  
       "\"He has built himself a home in the Museum of Rich History and Technology.\"",
       "\"The place is a fortress. It is swarming with all sorts of attack droids, Cyebertrons, Hackerborgs, and god-only-knows-what.\"",
@@ -170,10 +176,13 @@ def chapter_two(player,prompt)
           "\"It is Private Kenneth, sir\".",
           "\"Come on in then, Private.\"",
           "The door opens."]
+          Image.print("dooropen")
     elsif request == 2
-        cutscenes ["You open the door.", "It is Private Kenneth."]  
+        cutscene "\nYou open the door."
+        Image.print("dooropen")
+        cutscene "It is Private Kenneth."  
     end
-    Image.print("dooropen")
+    
     # 
     cutscenes [
       "\"Sir, the preparations are ready,\" he says.",
@@ -189,13 +198,17 @@ def chapter_two(player,prompt)
     cutscenes [
       "\"Sir. *sniff*. I just don't believe it.\"",
       "\"...Rita...\"",
-      "\"She...she... was so young. So... so... young...\"",
-      "\"She deserved much better than this...\" you say.",
+      "\"She...she... was so young. So... so... young...\""]
+      Image.print("leiutenant")
+      cutscene "\"She deserved much better than this...\" you say."
+      Image.print("privatekenneth")
+      cutscenes [
       "\"I...I... knew her when she used to build pillow forts...\"",
-      "\"...and pretend to defend herself against...\"",
-      "\"This is a terrible loss for us,\" you say.",
-      "\"...and Kevin, sir... and Paula...and...and...\"",
-      "\"We are all devastated by this loss,\" you comfort him.",
+      "\"...and pretend to defend herself against...\""]
+      Image.print("leiutenant")
+      cutscene "\"This is a terrible loss for us,\" you say."
+      cutscene "\"...and Kevin, sir... and Paula...and...and...\""
+      cutscenes ["\"We are all devastated by this loss,\" you comfort him.",
       "\"...and...Stefano as well... \"",
       "You notice a tear roll down Private Kenneth's eye.",
       "\"These were all good people who shouldn't have lost their lives,\" you say.",
@@ -227,6 +240,7 @@ def chapter_two(player,prompt)
       "\"Please come forth if you have a few words to say.\""]
     request = promptchoices(prompt, "", {"[Say a few words]" => 1, "[Don't say a few words]" => 2}) 
     if request == 1
+        Image.print("leiutenant")
         cutscenes [
           "\"Our youngest brothers and sisters were taken from us last night,\" you say.",
           "\"They died while defending our external compound from the greatest threat known to mankind thus far.\"",
@@ -248,6 +262,7 @@ def chapter_two(player,prompt)
           "\"Be vigilant.\"",
           "\"Thank you.\""]
     end
+    Image.print("book")
     cutscenes [
       "Father picks up from there.",
       "\"By the spirits, I bid you farewell,\" says the Father.",
@@ -262,12 +277,46 @@ end
 def chapter_three(player,prompt)
     puts "\n\nChapter 3 - In the armory".light_green
     puts "------------------------------".light_green
-    cutscene "\"\""
-    player.credits = 2000
+
+    cutscenes [
+      "\"Getting to Cyb is no easy task. First you must retrieve "  + "K-311 Gamma Siphoner".light_green + " from Atlas Station.\"",
+      "\"Atlas Station is located 20km north of here, so the helicopter will drop you there.\"",
+      "\"From then on, it will be on foot.\"",
+      "\"Be careful... The place is swarming with all kinds of scummy robots...\"",
+      "\"Before you go into battle against the robots, make sure you purchase a gun that can actually do some damage.\""]
+    player.credits = 25000
     showarmory(player,prompt,true)
 
-    enemyencounter(player, prompt, "dumpsterbot",20,false)
-    enemyencounter(player, prompt, "trashborg",30,false)
+    cutscene "\"Alright, time to make a move.\""
+    cutscene "\"The helicopter will fly you over to the first zone, sir.\""
+    cutscene "[Few hours later...]"
+    Image.print("leiutenant")
+    cutscenes [
+      "\"Alright, we're here...\"",
+      "\"Time to go in quick, grab what we need, and get out...\"",
+      "\"...\"",
+      "\"...\"",
+      "\"But... uh oh...\"",
+      "\"What the hell is that ugly thing???\""]
+
+    enemyencounter(player, prompt, "dumpsterbot",40,false)
+
+    Image.print("lieutenant")
+    cutscenes ["\"...\"", "\"God, what an ugly thing...\"", "\"Here comes another...\""]
+
+    enemyencounter(player, prompt, "trashborg",50,false)
+
+    cutscenes ["\"...\"", "\"God, these things keep coming...\"", "\"Better reload...\""]
+
+    enemyencounter(player, prompt, "trashborg",60,false,"You may have beaten the last two, but you won't beat me!")
+
+    cutscenes ["\"...\"", "\"Not going to catch a break today...\"", "\"Better reload...\""]
+
+    enemyencounter(player, prompt, "screwdroid",70,false,"ERROR!!! ERROR!!! THIS DEVICE CANNOT CONTROL HIMSELF!!!")
+
+    cutscenes ["\"...\"", "\"Okay, hopefully that's all done and over with...\"", "\"Uh oh...\""]
+
+    enemyencounter(player, prompt, "trashborg",100,false,"NOT ON MY WATCH!!!!!!!!")
 
     showarmory(player,prompt)
 end

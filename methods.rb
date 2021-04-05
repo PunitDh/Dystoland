@@ -128,29 +128,49 @@ end
 
 def showarmory(player,prompt,convertdisabled=false)
 	lastselected = 1
-	prices = {"healthpack": 500, "cipher": 100}
+	hrequest = nil
+	prices = {"gun": 12000, "healthpack": 800, "cipher": 100}
 	begin
-		puts "You have: " + (player.credits.to_s + " credits").yellow
+		puts ""
+		puts (" You have: " + (player.credits.to_s + " credits").yellow).center(100)
 		  options = {
-		  "Buy Guns" => 1,
+		  "Buy Gun "  + "(#{prices[:gun]} Credits)".yellow  => 1,
 		  "Buy healthpacks " + "(#{prices[:healthpack]} Credits)".yellow => 2,
-		  "Purchase Ciphers " +  "(#{prices[:cipher]} Credits)".yellow => 3,
-		  "View Powers" => 4,
+		#   "Purchase Ciphers " +  "(#{prices[:cipher]} Credits)".yellow => 3,
+		#   "View Powers" => 4,
+		  { name: "Purchase Ciphers".light_black, disabled: "(Not yet available)".light_black } => 3,
+		  { name: "View Powers".light_black, disabled: "(Not yet available)".light_black } => 4,
 		  { name: "Convert garbage data".light_black, disabled: "(Not yet available)".light_black } => 5,
 		  "[Exit Armory]" => 6
 		  }
 		  if not convertdisabled
+			options["Purchase Ciphers " +  "(#{prices[:cipher]} Credits)".yellow] = options.delete options.key(3)
+		  	options["View Powers"] = options.delete options.key(4)
 			options["Convert garbage data"] = options.delete options.key(5)
-			options["[Exit Armory]"] = options.delete "[Exit Armory]"
+			options["[Exit Armory]"] = options.delete options.key(6)
 		  end
 
-		 request = promptchoices(prompt, " Choose your option:", options, lastselected)
+		 request = promptchoices(prompt, "\n Choose your option:", options, lastselected)
 		 lastselected = request
 		case request
 		  when 1
-			# do this
+			if player.gundamage < 3.5
+				case promptchoices(prompt, "\n Are you sure you want to purchase a gun for #{prices[:gun]} credits?", {"Yes"=>1, "No"=>2})
+				when 1
+					if player.gundamage < 3.5
+						if player.credits >= prices[:gun]
+							player.credits -= prices[:gun]
+							player.gundamage = 3.5
+							puts "\n\n You have purchased a gun for #{prices[:gun]} credits.\n\n"
+						else
+							puts "\n\n You do not have enough credits to purchase this item.\n\n"
+						end
+					end
+				end
+			else
+				puts "\n\n You have already purchased a gun.\n\n"
+			end
 		  when 2
-			# do this
 			case promptchoices(prompt, "\n Are you sure you want to purchase 1 healthpack for #{prices[:healthpack]} credits?", {"Yes"=>1, "No"=>2})
 			when 1
 			  if player.credits >= prices[:healthpack]
@@ -186,14 +206,18 @@ def showarmory(player,prompt,convertdisabled=false)
 			end until gdata == "[Exit]"
 			tmpgets
 		  when 6
-			request = promptchoices(prompt, "Are you sure you want to exit the Armory?", {"Yes" => 7, "No" => 8})
+			hrequest = promptchoices(prompt, "\n\nAre you sure you want to exit the Armory?", {"Yes" => 1, "No" => 2})
 		end
-	  end until request == 7	
+	  end until hrequest == 1
 end
 
-def enemyencounter(player, prompt, enemy, health=20, garbagadataunlock=true)
+def enemyencounter(player, prompt, enemy, health=20, garbagadataunlock=true, initialquote=nil)
 	e = Enemy.new(enemy,health)
-    cutscenes ["\n\n\n\n\n\n Your path is being blocked by: #{e.name.capitalize}", " You have entered Battle Mode!"]
+    cutscene "\n\n\n\n\n\n Your path is being blocked by: #{e.name.capitalize.light_magenta}"
+	Image.print(e.name)
+	tmpgets
+	cutscene "\n #{e.name.capitalize} says: \"#{(initialquote.nil?) ? insult() : initialquote}\"\n"
+	cutscene " You have entered "+"Battle Mode".light_magenta + "!"
 	attackround = 0
 	eattackmultiplier = 1
 	criticalstrike = 1
@@ -201,8 +225,6 @@ def enemyencounter(player, prompt, enemy, health=20, garbagadataunlock=true)
 	fleeattempt = false
 	lastselected = 1
     begin
-        Image.print(e.name)
-		cutscene "\n #{e.name.capitalize} says: \"#{insult()}\"\n"
         puts "\n\t\t #{e.name.capitalize}'s health: #{e.health}/#{e.maxhealth}   " + ("█".red)*((e.health/5).ceil)
         puts "\t\t Your Health: #{player.health}/#{player.maxhealth}   " + ("█".green)*((player.health/5).ceil)
         request = promptchoices(prompt, "Your move:", {"Attack #{e.name.capitalize}" => 1, "Throw Grenade (Qty: "+player.grenades.to_s.light_red+")" => 2, "Heal (Qty:"+player.healthpacks.to_s.light_blue+")" => 3, "Hide from #{e.name.capitalize}" => 4, "Run away" => 5}, lastselected)
@@ -226,12 +248,16 @@ def enemyencounter(player, prompt, enemy, health=20, garbagadataunlock=true)
 					puts "\n You fumble around in your backpack to find a grenade, but find none."
 				end
 			when 3
-				if (player.healthpacks > 0)
-					puts "\n You use 1 healthpack from your backpack and gain 20 health."
-					player.healthpacks -= 1
-					player.health = [player.maxhealth, player.health + 20].min
+				if (player.health == player.maxhealth)
+					puts "\n You are already at max health."
 				else
-					puts "\n You fumble around in your backpack to find a healthpack, but find none."
+					if (player.healthpacks > 0)
+						puts "\n You use 1 healthpack from your backpack and gain 10 health."
+						player.healthpacks -= 1
+						player.health = [player.maxhealth, player.health + 10].min
+					else
+						puts "\n You fumble around in your backpack to find a healthpack, but find none."
+					end
 				end
 			when 5
 				puts "\n You turn on your heels and attempt to escape..."
@@ -261,16 +287,25 @@ def enemyencounter(player, prompt, enemy, health=20, garbagadataunlock=true)
 		break if player.health <= 0
 		attackround += 1
 
+		Image.print(e.name)
+		cutscene "\n #{e.name.capitalize} says: \"#{insult()}\"\n"
     end until (e.health <= 0 or (request == 5 and fleeattempt==true))
 
-	if not request == 5
-		puts "You have " + ["destroyed","defeated","crushed","conquered","beaten"].sample + ": #{e.name.capitalize}!"
-		puts "You have gained: " + (e.healthpacks.to_s + " healthpack(s)").light_blue
+	if (player.health <= 0)
+		puts "\n\n"
+		puts "You have died!".center(100)
+		puts "\n\n\n"
+		exit
+	end
+
+	if (not request == 5)
+		puts ("\t\t\tYou have " + ["destroyed","defeated","crushed","conquered","beaten"].sample + ": #{e.name.capitalize}!")
+		puts ("\t\t\tYou have gained: " + (e.healthpacks.to_s + " healthpack(s)").light_blue)
 		player.healthpacks += e.healthpacks
-		puts "You have gained: " + (e.credits.to_s + " credits").yellow
+		puts ("\t\t\tYou have gained: " + (e.credits.to_s + " credits").yellow)
 		player.credits += e.credits
 		if e.grenades > 0
-			puts "You have gained: " + (e.grenades.to_s + " grenades").light_red
+			puts "\t\t\tYou have gained: " + (e.grenades.to_s + " grenades").light_red
 			player.grenades += e.grenades
 		end
 		if (garbagadataunlock)
@@ -290,15 +325,14 @@ def enemyencounter(player, prompt, enemy, health=20, garbagadataunlock=true)
 	else
 		puts "\n You have fled the battle."
 	end
+	
 	tmpgets
-	puts "\n\n\t\tYour stats: "
-	puts "\t\t - Health: "+"#{player.health}".light_green
-	puts "\t\t - Credits: "+"#{player.credits}".yellow
-	puts "\t\t - Healthpacks: "+"#{player.healthpacks}".light_blue
-	puts "\t\t - Grenades: "+"#{player.grenades}".light_blue
+	puts "\n\n\t\t\tYour stats: "
+	puts "\t\t\t - Health: "+"#{player.health}".light_green
+	puts "\t\t\t - Credits: "+"#{player.credits}".yellow
+	puts "\t\t\t - Healthpacks: "+"#{player.healthpacks}".light_blue
+	puts "\t\t\t - Grenades: "+"#{player.grenades}".light_blue
 	tmpgets
-
-	# p player.garbagedata
 end
 
 def random_word()
@@ -315,12 +349,13 @@ end
 
 
 def promptchoices(prompt, question, choices, lastselected=1)
-    prompt.select(question, show_help: :never, cycle: true) do |menu|
-		menu.default lastselected
-		choices.each do |key,value|
-			menu.choice key, value
-		end
-	end
+    prompt.select(question, choices, show_help: :never, cycle: true) 
+	# do |menu|
+	# 	menu.default (choices.key(lastselected)[:disabled]) ? lastselected : 1
+	# 	choices.each do |key,value|
+	# 		menu.choice key, value
+	# 	end
+	# end
 end
 
 def cutscene(message)
