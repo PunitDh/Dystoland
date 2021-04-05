@@ -57,7 +57,7 @@ def chapter_one(player,prompt)
   
     cutscene "\"Please check your phone. I'm about to send you a photograph.\""
   
-    cutscene "[BLEEP] You have received a message."
+    cutscene "[BLEEP]".yellow +" You have received a message."
   
     choices = {"[Open the message]" => 1}
     request = prompt.select("", choices, show_help: :never)

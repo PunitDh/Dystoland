@@ -99,7 +99,7 @@ end
 
 #############################################################################
 class Player
-	attr_accessor :health, :healthpacks, :maxhealth, :name, :credits, :karma, :wallace_credits, :gundamage, :grenades
+	attr_accessor :health, :healthpacks, :dead, :maxhealth, :name, :credits, :karma, :wallace_credits, :gundamage, :grenades, :garbagedata, :ciphers, :powers
 
 	def initialize
 		@health = 100
@@ -108,7 +108,11 @@ class Player
 		@credits = 0
 		@healthpacks = 0
 		@gundamage = 1
-		@grenades = 1
+		@grenades = 5
+		@dead = false
+		@garbagedata = []
+		@powers = []
+		@ciphers = 0
 	end
 end
 
@@ -116,13 +120,13 @@ class Enemy
 	attr_accessor :health
 	attr_reader :name, :credits, :healthpacks, :attack, :grenades, :maxhealth
 
-	def initialize(name,health=20,credits=(rand()*250).round,healthpacks=(rand()*5 + 1).round)
+	def initialize(name,health=20,credits=(rand(125..450)).round,healthpacks=(rand()*5 + 1).round)
 		@name = name
 		@health = health
 		@maxhealth = @health
 		@attack = (rand()*5 + 1).round
 		@healthpacks = healthpacks
-		@credits = credits * (rand()*2).round
+		@credits = credits
 		@grenades = (rand() > 0.70) ? rand().round : 0
 	end
 end

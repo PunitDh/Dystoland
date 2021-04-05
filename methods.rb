@@ -102,33 +102,123 @@ def cutscenes(messages)
 	messages.cycle(1) { |message| cutscene(message) }
 end
 
-def enemyencounter(player, prompt, enemy, health=20)
+def insult
+	insults = ["You will not get away with this, you gleeking flap-mouthed haggard",
+		"Don't you need a license to be that ugly?",
+		"I bet your brain feels as good as new, seeing that you've never used it.",
+		"I don't know what makes you so stupid, but it really works!",
+		"If you had another brain, it would be lonely.",
+		"Did they make the Idiot-bot blueprints out of you?",
+		"You will go no further than this, maggot-pie!",
+		"How did you get this far, turd-goblin?",
+		"Don't you have a terribly empty feeling - in your skull?",
+		"Learn from your parents' mistakes - use birth control!",
+		"Turn yourself in, now!",
+		"I bet your mother has a loud bark!",
+		"Do you still love nature, despite what it did to you?",
+		"Keep talking, someday you'll say something intelligent.",
+		"I heard you went to have your head examined but the doctors found nothing there.",
+		"I'm going to rupture your evil face with a brick",
+		"Begone before I break your stinking spine with an anvil",
+		"I'm going to make you cry like a schoolgirl",
+		"Did you know you have receding gums?",
+		"After I'm done with you, you're going to wish you were never born",
+	].sample
+end
+
+def showarmory(player,prompt,convertdisabled=false)
+	lastselected = 1
+	prices = {"healthpack": 500, "cipher": 100}
+	begin
+		puts "You have: " + (player.credits.to_s + " credits").yellow
+		  options = {
+		  "Buy Guns" => 1,
+		  "Buy healthpacks " + "(#{prices[:healthpack]} Credits)".yellow => 2,
+		  "Purchase Ciphers " +  "(#{prices[:cipher]} Credits)".yellow => 3,
+		  "View Powers" => 4,
+		  { name: "Convert garbage data".light_black, disabled: "(Not yet available)".light_black } => 5,
+		  "[Exit Armory]" => 6
+		  }
+		  if not convertdisabled
+			options["Convert garbage data"] = options.delete options.key(5)
+			options["[Exit Armory]"] = options.delete "[Exit Armory]"
+		  end
+
+		 request = promptchoices(prompt, " Choose your option:", options, lastselected)
+		 lastselected = request
+		case request
+		  when 1
+			# do this
+		  when 2
+			# do this
+			case promptchoices(prompt, "\n Are you sure you want to purchase 1 healthpack for #{prices[:healthpack]} credits?", {"Yes"=>1, "No"=>2})
+			when 1
+			  if player.credits >= prices[:healthpack]
+				player.credits -= prices[:healthpack]
+				player.healthpacks += 1
+			  else
+				puts "\n\n You do not have enough credits to purchase this item.\n\n"
+			  end
+			end
+		  when 3
+			case promptchoices(prompt, "\n Are you sure you want to purchase 1 cipher for #{prices[:cipher]} credits?", {"Yes"=>1, "No"=>2})
+			when 1
+			  if player.credits >= prices[:cipher]
+				player.credits -= prices[:cipher]
+				player.ciphers += 1
+			  else
+				puts "\n\n You do not have enough credits to purchase this item.\n\n"
+			  end
+			end
+		  when 4
+			p player.powers
+			# do this
+		  when 5
+			begin
+				gdata = promptchoices(prompt, "\n Choose which cipher to convert: ", [player.garbagedata, "[Exit]"].flatten)
+				if not gdata == "[Exit]"
+					player.garbagedata.delete(gdata)
+					decipher = [gdata].pack("B*").to_s
+					powerval = decipher.count("\\^aeiou")+decipher.length*decipher.count("\\^aeiou")
+					puts "\n\n You have gained the following power: " + decipher + ", " + powerval.to_s
+					player.powers << [decipher, powerval]
+				end
+			end until gdata == "[Exit]"
+			tmpgets
+		  when 6
+			request = promptchoices(prompt, "Are you sure you want to exit the Armory?", {"Yes" => 7, "No" => 8})
+		end
+	  end until request == 7	
+end
+
+def enemyencounter(player, prompt, enemy, health=20, garbagadataunlock=true)
 	e = Enemy.new(enemy,health)
-    cutscenes ["\n\n\n\n\n\nYour path is being blocked by: #{e.name.capitalize}", "You have entered Battle Mode!"]
-	# attackadjectives = ["a destructive","a ruinous","a disastrous","a catastrophic","a calamitous","a cataclysmic","a pernicious","a noxious","a harmful","a damaging","an injurious","a hurtful"]
-	# attackverbs = ["causes", "deals"]
-	# attackinviters = ["gears up", "readies himself"]
+    cutscenes ["\n\n\n\n\n\n Your path is being blocked by: #{e.name.capitalize}", " You have entered Battle Mode!"]
 	attackround = 0
 	eattackmultiplier = 1
 	criticalstrike = 1
-
+	request = nil
+	fleeattempt = false
+	lastselected = 1
     begin
         Image.print(e.name)
-        puts "\n\t\t #{e.name.capitalize} has #{e.health}/#{e.maxhealth} health: " + ("█".red)*((e.health/5).ceil)
-        puts "\t\t Your Health: #{player.health}/#{player.maxhealth}: " + ("█".green)*((player.health/5).ceil)
-        request = promptchoices(prompt, "Your move:", {"Attack" => 1, "Throw Grenade (Qty: "+player.grenades.to_s.light_red+")" => 2, "Heal (Qty:"+player.healthpacks.to_s.light_blue+")" => 3, "Hide" => 4, "Run away" => 5})
+		cutscene "\n #{e.name.capitalize} says: \"#{insult()}\"\n"
+        puts "\n\t\t #{e.name.capitalize}'s health: #{e.health}/#{e.maxhealth}   " + ("█".red)*((e.health/5).ceil)
+        puts "\t\t Your Health: #{player.health}/#{player.maxhealth}   " + ("█".green)*((player.health/5).ceil)
+        request = promptchoices(prompt, "Your move:", {"Attack #{e.name.capitalize}" => 1, "Throw Grenade (Qty: "+player.grenades.to_s.light_red+")" => 2, "Heal (Qty:"+player.healthpacks.to_s.light_blue+")" => 3, "Hide from #{e.name.capitalize}" => 4, "Run away" => 5}, lastselected)
+		lastselected = request
         
 		case request
 			when 1
-				criticalstrike = 2 if rand() > 0.6
-				attackdmg = ((rand()*5).round) * criticalstrike * player.gundamage
+				criticalstrike = rand(1.5..3.5) if rand() > 0.6
+				attackdmg = (rand() *5 * criticalstrike * player.gundamage).ceil
 				puts (attackdmg < 1) ? "\n\n You attack #{e.name.capitalize} and miss." : "\n\n You attack #{e.name.capitalize} and cause #{attackdmg} damage."
 				puts " \n Critical Strike!!" if (criticalstrike > 1 and attackdmg >= 10)
 				e.health -= attackdmg
 				criticalstrike = 1
 			when 2
 				if player.grenades > 0
-					attackdmg = rand(10..24)
+					attackdmg = (rand(10..24) * rand(0.9..1.1)).ceil
 					puts "\n You throw a grenade and deal #{attackdmg} damage to #{e.name.capitalize}."
 					e.health -= attackdmg
 					player.grenades -= 1
@@ -143,6 +233,12 @@ def enemyencounter(player, prompt, enemy, health=20)
 				else
 					puts "\n You fumble around in your backpack to find a healthpack, but find none."
 				end
+			when 5
+				puts "\n You turn on your heels and attempt to escape..."
+				tmpgets
+				fleeattempt = true if rand() > 0.75
+				puts "\n #{e.name.capitalize} yells: " + ((fleeattempt) ? "\"Yes, yes, run away, little mouse...\"" : "\"Stand and fight me, coward\"")
+				puts "\n Flee attempt failed..." if not fleeattempt
 		end
 		
 		tmpgets
@@ -152,29 +248,47 @@ def enemyencounter(player, prompt, enemy, health=20)
 			tmpgets
 			if rand() > 0.8
 				cutscene " #{e.name.capitalize} #{["gears up", "readies himself"].sample} for #{["a destructive","a ruinous","a disastrous","a catastrophic","a calamitous","a cataclysmic","a pernicious","a noxious","a harmful","a damaging","an injurious","a hurtful"].sample} attack."
-				eattackmultiplier = 2
+				eattackmultiplier = rand(1.5..2.5)
 			end
 		end
 
-		enemydmg = ((rand()*e.attack).round) * eattackmultiplier
+		enemydmg = (rand()*e.attack * eattackmultiplier).ceil
 		puts (enemydmg < 1) ? "\n #{e.name.capitalize} attacks you and misses." : "\n #{e.name.capitalize}'s attack #{["causes", "deals"].sample} #{enemydmg} damage."
 		puts " Ouch!!" if eattackmultiplier > 1 and enemydmg >= 10
         player.health -= enemydmg
 		eattackmultiplier = 1
 		tmpgets
 		break if player.health <= 0
-
 		attackround += 1
-    end until e.health <= 0
 
-	puts "You have "+["destroyed","defeated","crushed","conquered","beaten"].sample+": #{e.name.capitalize}!"
-    puts "You have gained: " + (e.healthpacks.to_s + " healthpack(s)").light_blue
-	player.healthpacks += e.healthpacks
-    puts "You have gained: " + (e.credits.to_s + " credits").yellow
-	player.credits += e.credits
-	if e.grenades > 0
-		puts "You have gained: " + (e.grenades.to_s + " grenades").light_red
-		player.grenades += e.grenades
+    end until (e.health <= 0 or (request == 5 and fleeattempt==true))
+
+	if not request == 5
+		puts "You have " + ["destroyed","defeated","crushed","conquered","beaten"].sample + ": #{e.name.capitalize}!"
+		puts "You have gained: " + (e.healthpacks.to_s + " healthpack(s)").light_blue
+		player.healthpacks += e.healthpacks
+		puts "You have gained: " + (e.credits.to_s + " credits").yellow
+		player.credits += e.credits
+		if e.grenades > 0
+			puts "You have gained: " + (e.grenades.to_s + " grenades").light_red
+			player.grenades += e.grenades
+		end
+		if (garbagadataunlock)
+			tmpgets
+			garbagedata = random_word().flatten
+			garbagedatachoices = garbagedata.dup
+			garbagedatachoices.push("[Collect All]","[Exit]")
+			begin 
+				puts "\n The enemy has dropped the following garbage data: \n"
+				gdata = promptchoices(prompt," Choose which data to collect or press [Collect All]",garbagedatachoices)
+				garbagedatachoices.delete(gdata)
+				player.garbagedata << gdata unless (gdata=="[Exit]" or gdata =="[Collect All]")
+				player.garbagedata << garbagedatachoices[0..(garbagedatachoices.length-2)] if gdata =="[Collect All]"
+				player.garbagedata.flatten!
+			end until (gdata=="[Exit]" or gdata =="[Collect All]")
+		end
+	else
+		puts "\n You have fled the battle."
 	end
 	tmpgets
 	puts "\n\n\t\tYour stats: "
@@ -183,14 +297,30 @@ def enemyencounter(player, prompt, enemy, health=20)
 	puts "\t\t - Healthpacks: "+"#{player.healthpacks}".light_blue
 	puts "\t\t - Grenades: "+"#{player.grenades}".light_blue
 	tmpgets
+
+	# p player.garbagedata
 end
 
-def promptchoices(prompt, question, choices)
-    prompt.select(question, choices, show_help: :never)
+def random_word()
+	words = ["precede","panic","delete","borrow","large","sympathetic","filter","swarm","crossing","amputate","slap","hero","spell","electronics","head","bill","charismatic","beat","census","full","amuse","pound","institution","behead","ostracize","tough","progress","satisfied","flag","fascinate"]
+	r = (rand()*5 + 1).floor
+	a = []
+	r.times do
+		w = words.sample
+		words.delete(w)
+		a << w.unpack("B*")
+	end
+	return a
 end
 
-def quote(message)
-	"\"" + message.to_s + "\""
+
+def promptchoices(prompt, question, choices, lastselected=1)
+    prompt.select(question, show_help: :never, cycle: true) do |menu|
+		menu.default lastselected
+		choices.each do |key,value|
+			menu.choice key, value
+		end
+	end
 end
 
 def cutscene(message)

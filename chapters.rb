@@ -32,7 +32,7 @@ def chapter_one(player,prompt)
       "*Ring Ring*",
       "*Ring Ring*",
       "\nYou answer the phone.",
-      quote("*Cough cough*. Please, sir. You must help me."),
+      "\"*Cough cough*. Please, sir. You must help me.\"",
       "It sounds like it is the voice of a dying old man."
     ]
   
@@ -173,6 +173,8 @@ def chapter_two(player,prompt)
     elsif request == 2
         cutscenes ["You open the door.", "It is Private Kenneth."]  
     end
+    Image.print("dooropen")
+    # 
     cutscenes [
       "\"Sir, the preparations are ready,\" he says.",
       "\"We are simply waiting for you, sir.\"",
@@ -182,7 +184,9 @@ def chapter_two(player,prompt)
       "\"...the...\"",
       "\"...bodies...\"",
       "\"...have also been prepared the way we wanted them.\"",
-      "You hear a sniff.",
+      "You hear a sniff."]
+      Image.print("privatekenneth")
+    cutscenes [
       "\"Sir. *sniff*. I just don't believe it.\"",
       "\"...Rita...\"",
       "\"She...she... was so young. So... so... young...\"",
@@ -202,15 +206,19 @@ def chapter_two(player,prompt)
       "\"Yes, I know, Private,\" you say. \"But one living soldier is worth fifty dead robots to me.\"",
       "\"Y...yes, sir,\" says Private Kenneth.",
       "\"Come on, now,\" you say. \"I'd rather not be late for the funeral.\"",
-      "You both walk down towards the opening in the woods.",
-      "Six caskets lay side by side.",
+      "You both walk down towards the opening in the woods",
+      "Six caskets lay side by side."]
+      Image.print("caskets")
+      cutscenes [
       "The shimmering sun is shining upon the caskets through openings in the tree branches.",
       "A crowd of about 20 are gathered around the caskets, looking silent and mournful",
       "A man dressed in white is standing holding a book.",
       "\"We're ready to get started,\" he says.",
       "\"I'll let you lead the ceremony, Father,\" you say.",
       "It begins.",
-      "Father opens the book and starts reading.",
+      "Father opens the book and starts reading."]
+      Image.print("book")
+      cutscenes [
       "\"We're gathered here today to mourn the passing of six of the bravest people we've known\"",
       "\"Rita, Kevin, Paula, Stefano, Holsworth, Harvey were the bravest heroes we knew.\"",
       "\"Last night, during an attack on our external compound by the ungodly machines, they were taken from us.\"",
@@ -253,26 +261,49 @@ end
 
 def chapter_three(player,prompt)
     puts "\n\nChapter 3 - In the armory".light_green
-    puts "-----------------------".light_green
+    puts "------------------------------".light_green
     cutscene "\"\""
+    player.credits = 2000
+    showarmory(player,prompt,true)
 
-    begin
-      puts "You have: " + (player.credits.to_s + " credits").yellow
-      request = promptchoices(prompt, "", {"Buy Guns" => 1, "Buy armor" => 2, "Buy healthpacks" => 3, "Buy ammo" => 4, "[Exit Armory]" => 5})
-      case request
-        when 1
-          # do this
-        when 2
-          # do this
-        when 3
-          # do this
-        when 4
-          # do this
-        when 5
-          request = promptchoices(prompt, "Are you sure you want to exit the Armory?", {"Yes" => 6, "No" => 7})
-      end
-    end until request == 6
+    enemyencounter(player, prompt, "dumpsterbot",20,false)
+    enemyencounter(player, prompt, "trashborg",30,false)
 
-    enemyencounter(player, prompt, "dumpsterbot")
-    enemyencounter(player, prompt, "trashborg",30)
+    showarmory(player,prompt)
+end
+
+def chapter_four(player,prompt)
+  puts "\n\nChapter 4 - In the armory".light_green
+  puts "-----------------------".light_green  
+end
+
+def chapter_five(player,prompt)
+  puts "\n\nChapter 4 - In the armory".light_green
+  puts "-----------------------".light_green    
+  cutscenes [
+      " *Ring ring*",
+      " *Ring ring*",
+      " [BLEEP]".yellow + " You have a new video call. Caller name: Wallace",
+    ]
+    request = promptchoices(prompt, "", {"Answer the video call"=>1})
+    Image.print("wallace")
+    cutscenes [
+      "\"Hello, Lieutenant...*cough cough*\"",
+      "\"It's Wallace\"",
+      "\"We finally get to see each other in the flesh.\"",
+      "\"You might be surprised to see that I look quite different than I speak...\"",
+      "\"Now... about your mission...\"",
+      "\"Conventional weapons cannot destroy robots...\"",
+      "\"Instead, you need to use special weapons we call Biguns...\"",
+      "\"All computers communicate using 1's and 0's, and robots are nothing more than computers...\"",
+      "\"What we need to do is attack the robot with your conventional weapons until it is damaged\"",
+      "\"Then you need to plug in a device into its port that fills its memory with garbage data...\"",
+      "\"\"",
+      "\"I'm about to send you three binary codes.\"",
+      "\"You need to input these codes into your handheld computer\"",
+      "\"The words are: ['apple', 'banana', 'cheesecake']\""
+    ]
+    buzzwords = ['apple', 'banana', 'cheesecake']
+    request = promptchoices(prompt, "", ["apple", "banana", "cheesecake"])
+    p request
 end
