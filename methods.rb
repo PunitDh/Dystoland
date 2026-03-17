@@ -1,5 +1,7 @@
 # $wall_buff = 3
 
+require 'json'
+
 #############################################################################
 def count_em(string, substring)
 	string.scan(/(?=#{substring})/).count
@@ -133,22 +135,18 @@ def showarmory(player,prompt,convertdisabled=false)
 	begin
 		puts ""
 		puts (" You have: " + (player.credits.to_s + " credits").yellow).center(100)
+		puts (" Inventory: Healthpacks [#{player.healthpacks}] | Grenades [#{player.grenades}] | Ciphers [#{player.ciphers}] | Upgrade Tokens [#{player.upgrade_tokens}] | Powers [#{player.powers.length}] ").center(100)
 		  options = {
 		  "Buy Gun "  + "(#{prices[:gun]} Credits)".yellow  => 1,
 		  "Buy healthpacks " + "(#{prices[:healthpack]} Credits)".yellow => 2,
-		#   "Purchase Ciphers " +  "(#{prices[:cipher]} Credits)".yellow => 3,
-		#   "View Powers" => 4,
-		  { name: "Purchase Ciphers".light_black, disabled: "(Not yet available)".light_black } => 3,
-		  { name: "View Powers".light_black, disabled: "(Not yet available)".light_black } => 4,
-		  { name: "Convert garbage data".light_black, disabled: "(Not yet available)".light_black } => 5,
-		  "[Exit Armory]" => 6
+		  "Purchase Ciphers " +  "(#{prices[:cipher]} Credits)".yellow => 3,
+		  "View Powers" => 4,
+		  "Decode garbage data (uses ciphers)" => 5,
+		  "Buy Upgrades (uses tokens)" => 6,
+		  "Use Healthpack" => 7,
+		  "[Exit Armory]" => 8
 		  }
-		  if not convertdisabled
-			options["Purchase Ciphers " +  "(#{prices[:cipher]} Credits)".yellow] = options.delete options.key(3)
-		  	options["View Powers"] = options.delete options.key(4)
-			options["Convert garbage data"] = options.delete options.key(5)
-			options["[Exit Armory]"] = options.delete options.key(6)
-		  end
+
 
 		 request = promptchoices(prompt, "\n Choose your option:", options, lastselected)
 		 lastselected = request
@@ -161,14 +159,14 @@ def showarmory(player,prompt,convertdisabled=false)
 						if player.credits >= prices[:gun]
 							player.credits -= prices[:gun]
 							player.gundamage = 3.5
-							puts "\n\n You have purchased a gun for #{prices[:gun]} credits.\n\n"
+							cutscene "You have purchased a gun upgrade! Your damage is now #{player.gundamage}."
 						else
-							puts "\n\n You do not have enough credits to purchase this item.\n\n"
+							cutscene "You do not have enough credits."
 						end
 					end
 				end
 			else
-				puts "\n\n You have already purchased a gun.\n\n"
+				cutscene "You have already purchased the gun upgrade. Your damage is #{player.gundamage}."
 			end
 		  when 2
 			case promptchoices(prompt, "\n Are you sure you want to purchase 1 healthpack for #{prices[:healthpack]} credits?", {"Yes"=>1, "No"=>2})
@@ -176,8 +174,9 @@ def showarmory(player,prompt,convertdisabled=false)
 			  if player.credits >= prices[:healthpack]
 				player.credits -= prices[:healthpack]
 				player.healthpacks += 1
+				cutscene "You purchased 1 healthpack. You now have #{player.healthpacks} healthpacks."
 			  else
-				puts "\n\n You do not have enough credits to purchase this item.\n\n"
+				cutscene "You do not have enough credits."
 			  end
 			end
 		  when 3
@@ -186,26 +185,87 @@ def showarmory(player,prompt,convertdisabled=false)
 			  if player.credits >= prices[:cipher]
 				player.credits -= prices[:cipher]
 				player.ciphers += 1
+				cutscene "You purchased 1 cipher. You now have #{player.ciphers} ciphers."
 			  else
-				puts "\n\n You do not have enough credits to purchase this item.\n\n"
+				cutscene "You don't have enough credits."
 			  end
 			end
 		  when 4
-			p player.powers
-			# do this
+			if player.powers.empty?
+				cutscene "You have no powers yet. Convert garbage data to gain powers!"
+			else
+				cutscene "Your Powers:"
+				player.powers.each { |power, val| puts " - #{power}: +#{val}" }
+				tmpgets
+			end
 		  when 5
-			begin
-				gdata = promptchoices(prompt, "\n Choose which cipher to convert: ", [player.garbagedata, "[Exit]"].flatten)
-				if not gdata == "[Exit]"
+			if player.garbagedata.empty?
+				cutscene "You have no garbage data to decode."
+			elsif player.ciphers == 0
+				cutscene "You need ciphers to decode garbage data."
+			else
+				gdata = promptchoices(prompt, "\n Choose which data to decode (costs 1 cipher): ", [player.garbagedata, "[Exit]"].flatten)
+				if gdata != "[Exit]"
 					player.garbagedata.delete(gdata)
-					decipher = [gdata].pack("B*").to_s
-					powerval = decipher.count("\\^aeiou")+decipher.length*decipher.count("\\^aeiou")
-					puts "\n\n You have gained the following power: " + decipher + ", " + powerval.to_s
-					player.powers << [decipher, powerval]
+					player.ciphers -= 1
+					tokens = rand(1..3)  # Random tokens
+					player.upgrade_tokens += tokens
+					cutscene "You decoded '#{gdata}' using 1 cipher. Gained #{tokens} upgrade tokens! You now have #{player.upgrade_tokens} tokens."
 				end
-			end until gdata == "[Exit]"
+			end
 			tmpgets
 		  when 6
+			if player.upgrade_tokens == 0
+				cutscene "You have no upgrade tokens."
+			else
+				upgrade_options = {
+					"Gun Damage +0.5 (2 tokens)" => 1,
+					"Max Health +10 (3 tokens)" => 2,
+					"Grenade Capacity +2 (1 token)" => 3,
+					"[Back]" => 4
+				}
+				choice = promptchoices(prompt, "Choose upgrade:", upgrade_options)
+				case choice
+				when 1
+					if player.upgrade_tokens >= 2
+						player.upgrade_tokens -= 2
+						player.gundamage += 0.5
+						cutscene "Gun damage upgraded! Now #{player.gundamage}."
+					else
+						cutscene "Not enough tokens."
+					end
+				when 2
+					if player.upgrade_tokens >= 3
+						player.upgrade_tokens -= 3
+						player.maxhealth += 10
+						player.health += 10  # Also heal current
+						cutscene "Max health upgraded! Now #{player.maxhealth}."
+					else
+						cutscene "Not enough tokens."
+					end
+				when 3
+					if player.upgrade_tokens >= 1
+						player.upgrade_tokens -= 1
+						player.grenades += 2
+						cutscene "Grenade capacity increased! Now #{player.grenades} grenades."
+					else
+						cutscene "Not enough tokens."
+					end
+				end
+			end
+			tmpgets
+		  when 7
+			if player.health >= player.maxhealth
+				cutscene "You are already at full health."
+			elsif player.healthpacks == 0
+				cutscene "You have no healthpacks."
+			else
+				player.healthpacks -= 1
+				player.health = [player.maxhealth, player.health + 10].min
+				cutscene "You used a healthpack. Health is now #{player.health}/#{player.maxhealth}."
+			end
+			tmpgets
+		  when 8
 			hrequest = promptchoices(prompt, "\n\nAre you sure you want to exit the Armory?", {"Yes" => 1, "No" => 2})
 		end
 	  end until hrequest == 1
@@ -294,8 +354,9 @@ def enemyencounter(player, prompt, enemy, health=20, garbagadataunlock=true, ini
 	if (player.health <= 0)
 		puts "\n\n"
 		puts "You have died!".center(100)
+		puts "Loading last save..."
 		puts "\n\n\n"
-		exit
+		return
 	end
 
 	if (not request == 5)
@@ -379,4 +440,56 @@ end
 def printprompt(message)
 	puts message
 	tmpgets
+end
+
+#############################################################################
+def save_game(player, chapter)
+	save_data = {
+		player: {
+			name: player.name,
+			health: player.health,
+			maxhealth: player.maxhealth,
+			credits: player.credits,
+			healthpacks: player.healthpacks,
+			gundamage: player.gundamage,
+			grenades: player.grenades,
+			garbagedata: player.garbagedata,
+			powers: player.powers,
+			ciphers: player.ciphers,
+			upgrade_tokens: player.upgrade_tokens,
+			karma: player.karma,
+			wallace_credits: player.wallace_credits
+		},
+		chapter: chapter
+	}
+	File.write('savegame.json', JSON.pretty_generate(save_data))
+	cutscene "[Game saved successfully!]".light_green
+end
+
+#############################################################################
+def load_game
+	if File.exist?('savegame.json')
+		save_data = JSON.parse(File.read('savegame.json'))
+		player_data = save_data['player']
+		player = Player.new
+		player.name = player_data['name']
+		player.health = player_data['health']
+		player.maxhealth = player_data['maxhealth']
+		player.credits = player_data['credits']
+		player.healthpacks = player_data['healthpacks']
+		player.gundamage = player_data['gundamage']
+		player.grenades = player_data['grenades']
+		player.garbagedata = player_data['garbagedata']
+		player.powers = player_data['powers']
+		player.ciphers = player_data['ciphers']
+		player.upgrade_tokens = player_data['upgrade_tokens']
+		player.karma = player_data['karma']
+		player.wallace_credits = player_data['wallace_credits']
+		chapter = save_data['chapter']
+		cutscene "Game loaded successfully!"
+		return [player, chapter]
+	else
+		cutscene "No save file found."
+		return nil
+	end
 end

@@ -99,7 +99,7 @@ end
 
 #############################################################################
 class Player
-	attr_accessor :health, :healthpacks, :dead, :maxhealth, :name, :credits, :karma, :wallace_credits, :gundamage, :grenades, :garbagedata, :ciphers, :powers, :gun
+	attr_accessor :health, :healthpacks, :dead, :maxhealth, :name, :credits, :karma, :wallace_credits, :gundamage, :grenades, :garbagedata, :ciphers, :powers, :upgrade_tokens, :gun
 
 	def initialize
 		@health = 100
@@ -113,6 +113,7 @@ class Player
 		@garbagedata = []
 		@powers = []
 		@ciphers = 0
+		@upgrade_tokens = 0
 	end
 end
 

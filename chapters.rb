@@ -319,40 +319,147 @@ def chapter_three(player,prompt)
     enemyencounter(player, prompt, "trashborg",100,false,"NOT ON MY WATCH!!!!!!!!")
 
     showarmory(player,prompt)
+
+    cutscenes [
+      "\"Alright, that should be enough...\"",
+      "\"Now, let's find that Gamma Siphoner...\"",
+      "\"It should be in the main control room...\"",
+      "\"Let's move...\""]
+
+    # More encounters or puzzles here
+    cutscenes [
+      "\"Here we are... the control room...\"",
+      "\"The Gamma Siphoner is right there...\"",
+      "\"But it's guarded...\""]
+
+    enemyencounter(player, prompt, "guardbot",80,true,"Intruder alert! You shall not pass!")
+
+    cutscenes [
+      "\"Got it! The K-311 Gamma Siphoner...\"",
+      "\"Now, back to base...\"",
+      "\"Mission accomplished... for now...\""]
 end
 
 def chapter_four(player,prompt)
-  puts "\n\nChapter 4 - In the armory".light_green
-  puts "-----------------------".light_green  
+  puts "\n\nChapter 4 - Preparing for Cyb".light_green
+  puts "------------------------------".light_green
+
+  cutscenes [
+    "Back at base...",
+    "\"Well done, Lieutenant. You have the Gamma Siphoner.\"",
+    "\"Now, the real challenge begins...\"",
+    "\"Cyb is in the Lambda Sector, in the Museum of Rich History and Technology.\"",
+    "\"It's heavily fortified.\"",
+    "\"You'll need to infiltrate, find Cyb, and use the Siphoner to erase his memory.\"",
+    "\"But first, let's upgrade your gear...\""]
+
+  showarmory(player,prompt)
+
+  cutscenes [
+    "\"Alright, time to head out.\"",
+    "\"The helicopter will take you to the outskirts of the Lambda Sector.\"",
+    "\"From there, it's on foot.\"",
+    "\"Good luck, Lieutenant. Humanity depends on you.\""]
+
+  # Travel to Lambda Sector
+  cutscenes [
+    "[Later...]",
+    "\"This is the Lambda Sector...\"",
+    "\"Looks abandoned, but I know better...\"",
+    "\"Robots could be anywhere...\""]
+
+  enemyencounter(player, prompt, "scoutdroid",30,true,"Halt! Identify yourself!")
+
+  cutscenes [
+    "\"One down...\"",
+    "\"The museum should be ahead...\""]
+
+  # More encounters
+  enemyencounter(player, prompt, "securitybot",60,true,"Security breach detected!")
+
+  cutscenes [
+    "\"Getting closer...\"",
+    "\"There it is... the Museum...\""]
 end
 
 def chapter_five(player,prompt)
-  puts "\n\nChapter 4 - In the armory".light_green
-  puts "-----------------------".light_green    
+  puts "\n\nChapter 5 - Confronting Cyb".light_green
+  puts "----------------------------".light_green
+
   cutscenes [
-      " *Ring ring*",
-      " *Ring ring*",
-      " [BLEEP]".yellow + " You have a new video call. Caller name: Wallace",
-    ]
-    request = promptchoices(prompt, "", {"Answer the video call"=>1})
-    Image.print("wallace")
+    "Inside the Museum...",
+    "\"This place is a maze...\"",
+    "\"Exhibits from before the revolution...\"",
+    "\"But no time for sightseeing...\"",
+    "\"Cyb should be in the main hall...\""]
+
+  # More enemies
+  enemyencounter(player, prompt, "museumguard",70,true,"You dare enter this sacred place?")
+
+  cutscenes [
+    "\"Almost there...\"",
+    "\"I can hear something...\""]
+
+  Image.print("Cyb")
+  cutscenes [
+    "\"There he is... Cyb...\"",
+    "\"Cyb: 'Intruder detected. Prepare for termination.'\"",
+    "\"Time to use the Gamma Siphoner...\""]
+
+  # Boss fight with Cyb
+  enemyencounter(player, prompt, "Cyb",150,true,"You cannot erase me. I am eternal.")
+
+  cutscenes [
+    "\"He's down...\"",
+    "\"Now, plug in the Siphoner...\""]
+
+  # Puzzle or choice for memory wipe
+  request = promptchoices(prompt, "Choose the memory to erase:", {"Combat data" => 1, "Personal memories" => 2, "All memories" => 3})
+
+  case request
+  when 1
+    cutscene "\"Erasing combat data...\""
+  when 2
+    cutscene "\"Erasing personal memories...\""
+  when 3
+    cutscene "\"Erasing all memories...\""
+  end
+
+  cutscenes [
+    "\"Done...\"",
+    "\"Cyb is now harmless...\"",
+    "\"Mission complete...\"",
+    "\"Time to report back...\""]
+
+  # Ending
+  if player.karma > 0
     cutscenes [
-      "\"Hello, Lieutenant...*cough cough*\"",
-      "\"It's Wallace\"",
-      "\"We finally get to see each other in the flesh.\"",
-      "\"You might be surprised to see that I look quite different than I speak...\"",
-      "\"Now... about your mission...\"",
-      "\"Conventional weapons cannot destroy robots...\"",
-      "\"Instead, you need to use special weapons we call Biguns...\"",
-      "\"All computers communicate using 1's and 0's, and robots are nothing more than computers...\"",
-      "\"What we need to do is attack the robot with your conventional weapons until it is damaged\"",
-      "\"Then you need to plug in a device into its port that fills its memory with garbage data...\"",
-      "\"\"",
-      "\"I'm about to send you three binary codes.\"",
-      "\"You need to input these codes into your handheld computer\"",
-      "\"The words are: ['apple', 'banana', 'cheesecake']\""
-    ]
-    buzzwords = ['apple', 'banana', 'cheesecake']
-    request = promptchoices(prompt, "", ["apple", "banana", "cheesecake"])
-    p request
+      "Back at base...",
+      "\"Excellent work, Lieutenant.\"",
+      "\"Cyb's memory is erased.\"",
+      "\"Your honorable actions have inspired hope in humanity.\"",
+      "\"The Resistance grows stronger.\"",
+      "\"Thank you, true hero.\""]
+  elsif player.karma < 0
+    cutscenes [
+      "Back at base...",
+      "\"The mission is complete, Lieutenant.\"",
+      "\"Cyb's memory is erased.\"",
+      "\"But your greed has not gone unnoticed.\"",
+      "\"The Resistance watches its own.\"",
+      "\"Be careful.\""]
+  else
+    cutscenes [
+      "Back at base...",
+      "\"Well done, Lieutenant.\"",
+      "\"Cyb's memory is erased.\"",
+      "\"The fight against the robots continues.\"",
+      "\"For now, humanity has a chance.\"",
+      "\"Thank you.\""]
+  end
+
+  puts "\n\nGAME OVER".center(50)
+  puts "You have completed Dystoland!".center(50)
+  puts "Final Karma: #{player.karma}".center(50)
+  exit
 end
