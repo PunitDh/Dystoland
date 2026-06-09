@@ -335,7 +335,7 @@ def chapter_three(player,prompt)
     enemyencounter(player, prompt, "guardbot",80,true,"Intruder alert! You shall not pass!")
 
     cutscenes [
-      "\"Got it! The K-311 Gamma Siphoner...\"",
+      "\"Got it! The " + "K-311 Gamma Siphoner".light_green + "...\"",
       "\"Now, back to base...\"",
       "\"Mission accomplished... for now...\""]
 end
@@ -383,7 +383,64 @@ def chapter_four(player,prompt)
 end
 
 def chapter_five(player,prompt)
-  puts "\n\nChapter 5 - Confronting Cyb".light_green
+  puts "\n\nChapter 5 - At The Museum Gates".light_green
+  puts "--------------------------------".light_green
+
+  cutscenes [
+    "\"That's the Museum of Rich History and Technology...\"",
+    "\"Too quiet... I don't like it.\"",
+    "\"If Cyb is in there, he's expecting trouble.\"",
+    "\"Best not to rush this.\""]
+
+  cutscenes [
+    "You duck into the shell of a ruined security booth near the museum perimeter.",
+    "For the first time since entering the Lambda Sector, you have a moment to breathe.",
+    "Your radio crackles to life."]
+
+  cutscenes [
+    "\"Lieutenant, come in,\" says a voice over the comms.",
+    "\"We've been trying to raise you for ten minutes.\"",
+    "\"This is Wallace,\" comes the familiar voice after a cough.",
+    "\"You've done well to make it this far.\""]
+
+  request = promptchoices(prompt, "Say:", {"I'm at the museum gates." => 1, "You picked a wonderful time to call." => 2})
+  cutscene "\"I'm at the museum gates. Still alive, somehow,\" you say." if request == 1
+  cutscene "\"You picked a wonderful time to call, Wallace,\" you mutter." if request == 2
+
+  cutscenes [
+    "\"Listen carefully,\" says Wallace.",
+    "\"Cyb will not behave like the machines you've fought so far.\"",
+    "\"He learns. He adapts. And if he recognizes the Gamma Siphoner, he will try to destroy it first.\"",
+    "\"Do not let him control the pace of the battle.\""]
+
+  cutscenes [
+    "\"We've also located an old Retaker dead-drop near your position,\" says the voice on the radio.",
+    "\"There should still be usable supplies inside.\"",
+    "\"Take what you need before you enter the museum.\""]
+
+  cutscene "Hidden beneath a loose floor panel, you find an emergency field cache."
+  player.credits += 3000
+  player.healthpacks += 1
+  player.grenades += 1
+  cutscene "You recover +3000 credits, +1 healthpack, and +1 grenade from the cache."
+
+  cutscenes [
+    "\"This is it,\" you whisper to yourself.",
+    "\"Once I walk through those doors, there is no turning back.\"",
+    "\"I'd better make every last credit count.\""]
+
+  showarmory(player,prompt)
+
+  cutscenes [
+    "\"Weapons checked.\"",
+    "\"Siphoner secured.\"",
+    "\"Time to finish what I came here to do.\"",
+    "You step out from the ruined booth and make for the museum entrance.",
+    "Its old security lights flicker to life one by one as you approach..."]
+end
+
+def chapter_six(player,prompt)
+  puts "\n\nChapter 6 - Confronting Cyb".light_green
   puts "----------------------------".light_green
 
   cutscenes [
@@ -431,35 +488,213 @@ def chapter_five(player,prompt)
     "\"Mission complete...\"",
     "\"Time to report back...\""]
 
-  # Ending
   if player.karma > 0
     cutscenes [
       "Back at base...",
       "\"Excellent work, Lieutenant.\"",
       "\"Cyb's memory is erased.\"",
       "\"Your honorable actions have inspired hope in humanity.\"",
-      "\"The Resistance grows stronger.\"",
-      "\"Thank you, true hero.\""]
+      "\"The Resistance grows stronger.\""]
   elsif player.karma < 0
     cutscenes [
       "Back at base...",
       "\"The mission is complete, Lieutenant.\"",
       "\"Cyb's memory is erased.\"",
       "\"But your greed has not gone unnoticed.\"",
-      "\"The Resistance watches its own.\"",
-      "\"Be careful.\""]
+      "\"The Resistance watches its own.\""]
   else
     cutscenes [
       "Back at base...",
       "\"Well done, Lieutenant.\"",
       "\"Cyb's memory is erased.\"",
       "\"The fight against the robots continues.\"",
-      "\"For now, humanity has a chance.\"",
-      "\"Thank you.\""]
+      "\"For now, humanity has a chance.\""]
   end
 
-  puts "\n\nGAME OVER".center(50)
-  puts "You have completed Dystoland!".center(50)
+  cutscenes [
+    "A few hours later, Cyb is wheeled into one of the base workshops.",
+    "He is silent now. Power drained. Head lowered.",
+    "Wallace stands beside the workbench with both hands pressed against the metal, saying nothing."]
+
+  cutscenes [
+    "\"You got what you wanted,\" you say quietly.",
+    "\"He's wiped.\"",
+    "Wallace nods, but does not look relieved.",
+    "\"Yes,\" he says. \"I know.\""]
+
+  cutscenes [
+    "One of the mechanics frowns at a small panel near Cyb's chest.",
+    "\"Sir... this wasn't in the schematics,\" she says.",
+    "\"There's a compartment in here.\"",
+    "The room goes still."]
+
+  cutscenes [
+    "Inside the compartment is something wrapped in cloth.",
+    "Not a weapon. Not a drive core. Not a key.",
+    "Just an old photograph, worn soft at the edges from being handled too many times.",
+    "Wallace goes pale the moment he sees it."]
+
+  cutscenes [
+    "\"No...\" he whispers.",
+    "You look from the photograph to Cyb, and then back to Wallace.",
+    "\"Who is she?\" you ask.",
+    "Wallace closes his eyes."]
+
+  puts "\n" + "TO BE CONTINUED...".center(50).light_red
+  tmpgets
+end
+
+def chapter_seven(player,prompt)
+  puts "\n\nChapter 7 - What Wallace Didn't Say".light_green
+  puts "------------------------------------".light_green
+
+  cutscenes [
+    "That night, Wallace asks to speak with you alone.",
+    "He does not take you to the command hall.",
+    "He takes you to a small storage room at the edge of the infirmary, where nobody ever goes unless they have to.",
+    "The photograph is already waiting on the table."]
+
+  cutscenes [
+    "\"I should have told you the truth from the beginning,\" Wallace says.",
+    "\"Or enough of it, at least.\"",
+    "\"But once I started lying, it became easier to keep lying.\"",
+    "He looks older than he did on the phone."]
+
+  request = promptchoices(prompt, "Say:", {"You used me." => 1, "Start talking, Wallace." => 2})
+  cutscene "\"You used me,\" you say." if request == 1
+  if request == 2
+    cutscene "\"Start talking, Wallace,\" you say."
+  end
+
+  cutscenes [
+    "\"Perhaps I did,\" he says. \"And I am sorry for that.\"",
+    "\"Cyb was never just a machine I built to guard my house.\"",
+    "\"He became something else to us.\"",
+    "\"Something I was not ready to name out loud.\""]
+
+  cutscenes [
+    "He slides the photograph toward you.",
+    "On the back is an address, written in fading ink.",
+    "\"That was my home,\" Wallace says.",
+    "\"There may still be something there. Something Cyb was trying to protect from me... or for me. I no longer know which.\""]
+
+  player.credits += 5000
+  cutscene "Wallace quietly transfers +5000 credits to cover the trip."
+
+  cutscenes [
+    "\"If you're asking me to clean up another secret of yours, say it plainly,\" you tell him.",
+    "\"I'm asking you to help me face one,\" Wallace replies.",
+    "\"Go to the house. See what's left. Then decide what kind of man you think I am.\""]
+
+  showarmory(player,prompt)
+
+  cutscenes [
+    "At first light, you leave the base alone.",
+    "The address leads you far from the front lines, into a dead suburb swallowed by weeds and ash.",
+    "Here the war feels older.",
+    "Quieter too."]
+
+  cutscenes [
+    "The street signs are rusted almost white.",
+    "Some of the houses are burned out.",
+    "Others look untouched until you get close enough to see there is nothing living behind the windows.",
+    "\"So this is where Wallace came from...\" you murmur."]
+
+  cutscenes [
+    "Wallace's house sits at the end of a narrow lane beneath a dead jacaranda tree.",
+    "The front gate hangs open.",
+    "The upstairs light is on.",
+    "That is impossible, and you know it."]
+
+  enemyencounter(player, prompt, "scoutdroid",45,true,"Property boundary crossed.")
+
+  cutscenes [
+    "\"A guard detail... all this time?\"",
+    "\"Wallace really didn't tell me much.\""]
+
+  enemyencounter(player, prompt, "securitybot",75,true,"Residential archive sealed.")
+
+  cutscenes [
+    "Inside, the house smells of dust, old wood, and rain that leaked in years ago.",
+    "Family pictures still line the hallway.",
+    "Most of the glass is cracked.",
+    "None of the frames have been taken."]
+
+  cutscenes [
+    "In an upstairs bedroom, you find a locked cedar chest pushed beneath a bed.",
+    "The key is still taped behind a dresser drawer, exactly where someone must have left it on purpose.",
+    "Inside the chest are letters, a child's drawings, and maintenance notes in Wallace's hand.",
+    "At the very bottom lies a small data module wrapped in the same cloth as the photograph."]
+
+  cutscenes [
+    "You do not open it there.",
+    "Instead, you slip it into your coat and look once more at the room.",
+    "Someone lived here. Laughed here. Waited here.",
+    "The war came after that."]
+
+  player.credits += 4000
+  player.garbagedata << "wallace-house-module"
+  cutscene "You have gained +4000 credits and recovered a sealed data module."
+
+  cutscenes [
+    "When you call Wallace from the front porch, he answers on the first ring.",
+    "You tell him what you found.",
+    "He is silent for so long that you check whether the line has gone dead.",
+    "\"Bring it back,\" he says at last."]
+end
+
+def chapter_eight(player,prompt)
+  puts "\n\nChapter 8 - The House On Bell Street".light_green
+  puts "------------------------------------".light_green
+
+  cutscenes [
+    "Back at base, Wallace asks you not to bring the module to command.",
+    "He meets you instead in the same workshop where Cyb was laid out on the table.",
+    "The room is dim. Everyone else has been sent away.",
+    "\"If this contains what I think it does,\" Wallace says, \"then after tonight you may decide never to speak to me again.\""]
+
+  cutscenes [
+    "You slot the module into an old reader.",
+    "At first the screen shows only static and file corruption.",
+    "Then the image clears just enough.",
+    "Wallace sits down hard in the nearest chair."]
+
+  showarmory(player,prompt)
+
+  cutscenes [
+    "You watch the recording in silence.",
+    "When it ends, neither of you speaks for a long while.",
+    "Outside, somewhere beyond the workshop walls, the base carries on as though nothing has changed.",
+    "Inside, the world has shifted a little."]
+
+  cutscenes [
+    "\"So that's why you wanted him wiped,\" you say at last.",
+    "Wallace does not deny it.",
+    "\"Partly,\" he says.",
+    "\"And partly because I was afraid of what he might remember that I could not bear to.\""]
+
+  request = promptchoices(prompt, "Say:", {"You should have trusted me." => 1, "You should have trusted Cyb." => 2})
+  cutscene "\"You should have trusted me enough to tell me,\" you say." if request == 1
+  if request == 2
+    cutscene "\"You should have trusted Cyb,\" you say."
+    player.karma += 1
+    cutscene "You have gained: +1 karma.".light_green
+  end
+
+  cutscenes [
+    "Before Wallace can answer, a sound comes from the workbench behind you.",
+    "A soft mechanical click.",
+    "Then another.",
+    "Cyb's fingers move."]
+
+  cutscenes [
+    "The two of you turn at the same time.",
+    "Cyb is still strapped to the table, but one dark lens has lit again.",
+    "Not bright. Not hostile. Just awake.",
+    "\"Lieutenant,\" Wallace says, barely above a whisper. \"Do not leave.\""]
+
+  puts "\n\nEND OF CURRENT CHAPTERS".center(50)
+  puts "The story will continue from here.".center(50)
   puts "Final Karma: #{player.karma}".center(50)
   exit
 end

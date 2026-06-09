@@ -101,6 +101,36 @@ begin
   end
   if current_chapter <= 5
     chapter_five(player,prompt)
+    if player.health <= 0
+      loaded = load_game
+      player, current_chapter = loaded if loaded
+      next
+    end
+    save_game(player, 6)
+    current_chapter = 6
+  end
+  if current_chapter <= 6
+    chapter_six(player,prompt)
+    if player.health <= 0
+      loaded = load_game
+      player, current_chapter = loaded if loaded
+      next
+    end
+    save_game(player, 7)
+    current_chapter = 7
+  end
+  if current_chapter <= 7
+    chapter_seven(player,prompt)
+    if player.health <= 0
+      loaded = load_game
+      player, current_chapter = loaded if loaded
+      next
+    end
+    save_game(player, 8)
+    current_chapter = 8
+  end
+  if current_chapter <= 8
+    chapter_eight(player,prompt)
     exit
   end
 end while true

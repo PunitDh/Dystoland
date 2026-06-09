@@ -105,7 +105,7 @@ def cutscenes(messages)
 end
 
 def insult
-	insults = ["You will not get away with this, you gleeking flap-mouthed haggard",
+	["You will not get away with this, you gleeking flap-mouthed haggard",
 		"Don't you need a license to be that ugly?",
 		"I bet your brain feels as good as new, seeing that you've never used it.",
 		"I don't know what makes you so stupid, but it really works!",
@@ -134,16 +134,26 @@ def showarmory(player,prompt,convertdisabled=false)
 	prices = {"gun": 12000, "healthpack": 800, "cipher": 100}
 	begin
 		puts ""
-		puts (" You have: " + (player.credits.to_s + " credits").yellow).center(100)
-		puts (" Inventory: Healthpacks [#{player.healthpacks}] | Grenades [#{player.grenades}] | Ciphers [#{player.ciphers}] | Upgrade Tokens [#{player.upgrade_tokens}] | Powers [#{player.powers.length}] ").center(100)
+		puts "═" * 100
+		puts "ARMORY STATUS".center(100)
+		puts (" Health: #{player.health}/#{player.maxhealth}".light_green +
+			" | Damage: #{player.gundamage}".light_red +
+			" | Credits: #{player.credits}".yellow).center(100)
+		puts (" Healthpacks: #{player.healthpacks}".light_blue +
+			" | Grenades: #{player.grenades}".light_red +
+			" | Ciphers: #{player.ciphers}".light_cyan +
+			" | Upgrade Tokens: #{player.upgrade_tokens}".light_yellow +
+			" | Powers: #{player.powers.length}".light_magenta).center(100)
+		puts (" Garbage Data Stored: #{player.garbagedata.length} ").center(100)
+		puts "═" * 100
 		  options = {
-		  "Buy Gun "  + "(#{prices[:gun]} Credits)".yellow  => 1,
-		  "Buy healthpacks " + "(#{prices[:healthpack]} Credits)".yellow => 2,
-		  "Purchase Ciphers " +  "(#{prices[:cipher]} Credits)".yellow => 3,
-		  "View Powers" => 4,
-		  "Decode garbage data (uses ciphers)" => 5,
-		  "Buy Upgrades (uses tokens)" => 6,
-		  "Use Healthpack" => 7,
+		  "Buy Gun "  + "(#{prices[:gun]} Credits)".yellow + " [Damage: #{player.gundamage}]" => 1,
+		  "Buy Healthpack " + "(#{prices[:healthpack]} Credits)".yellow + " [#{player.healthpacks} owned]" => 2,
+		  "Purchase Cipher " +  "(#{prices[:cipher]} Credits)".yellow + " [#{player.ciphers} owned]" => 3,
+		  "View Powers [#{player.powers.length} unlocked]" => 4,
+		  "Decode Garbage Data [#{player.garbagedata.length} stored | #{player.ciphers} ciphers]" => 5,
+		  "Buy Upgrades [#{player.upgrade_tokens} tokens]" => 6,
+		  "Use Healthpack [#{player.healthpacks} owned]" => 7,
 		  "[Exit Armory]" => 8
 		  }
 
